@@ -701,7 +701,7 @@
         async function renderNews() {
             const container = document.getElementById('news-container');
             try {
-                const { data: news, error } = await supabase
+                const { data: news, error } = await supabaseClient
                     .from('news')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -737,7 +737,7 @@
         async function renderFixtures() {
             const container = document.getElementById('fixtures-container');
             try {
-                const { data: fixtures, error } = await supabase
+                const { data: fixtures, error } = await supabaseClient
                     .from('fixtures')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -790,7 +790,7 @@
         async function renderResults() {
             const container = document.getElementById('results-container');
             try {
-                const { data: results, error } = await supabase
+                const { data: results, error } = await supabaseClient
                     .from('results')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -843,7 +843,7 @@
         async function renderTable() {
             const container = document.getElementById('table-container');
             try {
-                const { data: teams, error } = await supabase
+                const { data: teams, error } = await supabaseClient
                     .from('teams')
                     .select('*');
 
