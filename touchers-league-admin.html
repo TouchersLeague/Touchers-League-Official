@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Touchers League - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a2030 100%);
+        }
+
+        .login-box {
+            background: #1e2633;
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #2a3547;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #a8b3cf;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a8b3cf;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0a0e1a;
+            border: 1px solid #2a3547;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e1a;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .admin-container {
+            display: none;
+        }
+
+        .admin-container.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: #131824;
+            border-bottom: 1px solid #2a3547;
+            padding: 20px 0;
+        }
+
+        .admin-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .admin-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #1e2633;
+            border: 1px solid #2a3547;
+            color: #a8b3cf;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            border-color: #00ff88;
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            color: #0a0e1a;
+            border-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: #1e2633;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card {
+            background: #1e2633;
+            border: 1px solid #2a3547;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00ff88, #00ccff);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e1a;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-size: 15px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid #2a3547;
+            border-radius: 8px;
+            color: #a8b3cf;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .btn-secondary:hover {
+            border-color: #00ff88;
+            color: #fff;
+        }
+
+        .btn-danger {
+            padding: 8px 16px;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-danger:hover {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .list-item {
+            background: #131824;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #2a3547;
+        }
+
+        .list-item-content h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .list-item-content p {
+            font-size: 13px;
+            color: #a8b3cf;
+        }
+
+        .list-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            animation: fadeIn 0.3s;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a3547;
+        }
+
+        th {
+            background: #131824;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #a8b3cf;
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a8b3cf;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>⚽ Admin Panel</h1>
+                <p>Touchers League Management</p>
+            </div>
+            <div id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminDashboard">
+        <div class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">TOUCHERS LEAGUE ADMIN</div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('news')">📰 News</button>
+                <button class="tab-btn" onclick="switchTab('fixtures')">📅 Fixtures</button>
+                <button class="tab-btn" onclick="switchTab('results')">✅ Results</button>
+                <button class="tab-btn" onclick="switchTab('players')">⭐ Players</button>
+                <button class="tab-btn" onclick="switchTab('table')">🏆 League Table</button>
+            </div>
+
+            <!-- News Tab -->
+            <div class="tab-content active" id="newsTab">
+                <div class="section-title">
+                    <div class="section-icon">📰</div>
+                    <span>Manage News</span>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Add News Article</h3>
+                    <div id="newsSuccess"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="newsTitle" placeholder="Article headline">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="newsCategory">
+                                <option value="Breaking">Breaking</option>
+                                <option value="Match Report">Match Report</option>
+                                <option value="League Update">League Update</option>
+                                <option value="Community">Community</option>
+                                <option value="Player Spotlight">Player Spotlight</option>
+                                <option value="Announcement">Announcement</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Excerpt (Short Description)</label>
+                        <textarea id="newsExcerpt" placeholder="Brief summary..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Icon (Emoji)</label>
+                            <input type="text" id="newsIcon" placeholder="📰" value="📰">
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="text" id="newsDate" placeholder="Today" value="Today">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" onclick="addNews()">Add Article</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Published Articles</h3>
+                    <div id="newsList"></div>
+                </div>
+            </div>
+
+            <!-- Fixtures Tab -->
+            <div class="tab-content" id="fixturesTab">
+                <div class="section-title">
+                    <div class="section-icon">📅</div>
+                    <span>Manage Fixtures</span>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Add Fixture</h3>
+                    <div id="fixtureSuccess"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="text" id="fixtureDate" placeholder="e.g., Saturday, Mar 29">
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="text" id="fixtureTime" placeholder="e.g., 18:00 EST">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Home Team</label>
+                            <select id="fixtureHomeTeam"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Away Team</label>
+                            <select id="fixtureAwayTeam"></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="fixtureStatus">
+                                <option value="upcoming">Upcoming</option>
+                                <option value="live">Live</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status Text</label>
+                            <input type="text" id="fixtureStatusText" placeholder="e.g., Upcoming">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Home Score (optional)</label>
+                            <input type="number" id="fixtureHomeScore" min="0" placeholder="Leave blank if not started">
+                        </div>
+                        <div class="form-group">
+                            <label>Away Score (optional)</label>
+                            <input type="number" id="fixtureAwayScore" min="0" placeholder="Leave blank if not started">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" onclick="addFixture()">Add Fixture</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">All Fixtures</h3>
+                    <div id="fixturesList"></div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div class="tab-content" id="resultsTab">
+                <div class="section-title">
+                    <div class="section-icon">✅</div>
+                    <span>Manage Results</span>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Add Match Result</h3>
+                    <div id="resultSuccess"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="text" id="resultDate" placeholder="e.g., Friday, Mar 27">
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="text" id="resultTime" placeholder="e.g., 20:00 EST">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Home Team</label>
+                            <select id="resultHomeTeam"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Home Score</label>
+                            <input type="number" id="resultHomeScore" min="0" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Away Team</label>
+                            <select id="resultAwayTeam"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Away Score</label>
+                            <input type="number" id="resultAwayScore" min="0" placeholder="0">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" onclick="addResult()">Add Result & Update Table</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">All Results</h3>
+                    <div id="resultsList"></div>
+                </div>
+            </div>
+
+            <!-- Players Tab -->
+            <div class="tab-content" id="playersTab">
+                <div class="section-title">
+                    <div class="section-icon">⭐</div>
+                    <span>Manage Players</span>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Add Player</h3>
+                    <div id="playerSuccess"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Player Name</label>
+                            <input type="text" id="playerName" placeholder="e.g., John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label>Team</label>
+                            <select id="playerTeam"></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Goals</label>
+                            <input type="number" id="playerGoals" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Assists</label>
+                            <input type="number" id="playerAssists" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Saves</label>
+                            <input type="number" id="playerSaves" min="0" value="0">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-primary" onclick="addPlayer()">Add Player</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">All Players</h3>
+                    <div class="table-container">
+                        <table id="playersTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Team</th>
+                                    <th>Goals</th>
+                                    <th>Assists</th>
+                                    <th>Saves</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playersTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="playersEmptyState" style="display: none;">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⭐</div>
+                            <p>No players added yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Tab -->
+            <div class="tab-content" id="tableTab">
+                <div class="section-title">
+                    <div class="section-icon">🏆</div>
+                    <span>League Table</span>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Current Standings</h3>
+                        <button class="btn-danger" onclick="resetTable()">Reset All Stats</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="leagueTable">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Team</th>
+                                    <th>P</th>
+                                    <th>W</th>
+                                    <th>D</th>
+                                    <th>L</th>
+                                    <th>GF</th>
+                                    <th>GA</th>
+                                    <th>GD</th>
+                                    <th>Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                    <p style="margin-top: 20px; color: #a8b3cf; font-size: 13px;">
+                        💡 The table updates automatically when you add match results
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://ayxovfjroysubbzpjzzk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5eG92Zmpyb3lzdWJienBqenprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MDc2NDEsImV4cCI6MjA5MDI4MzY0MX0.npDIYWcxmMBS-kTCYzDn-_xf4aSO-DTIQuCIhE1VEig';
+        
+        const AUTH_KEY = 'touchersLeagueAuth';
+        const DEFAULT_USERNAME = 'tyoluvsdobby325';
+        const DEFAULT_PASSWORD = 'budapestblazers500';
+
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === DEFAULT_USERNAME && password === DEFAULT_PASSWORD) {
+                localStorage.setItem(AUTH_KEY, 'true');
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('adminDashboard').classList.add('active');
+                init();
+            } else {
+                document.getElementById('loginError').innerHTML = 
+                    '<div class="error-message">Invalid credentials. Try tyoluvsdobby325 / budapestblazers500</div>';
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem(AUTH_KEY);
+            location.reload();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        async function populateTeamSelects() {
+            const { data: teams } = await supabaseClient.from('teams').select('name');
+            const selects = ['fixtureHomeTeam', 'fixtureAwayTeam', 'resultHomeTeam', 'resultAwayTeam', 'playerTeam'];
+            
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = teams.map(team => 
+                        `<option value="${team.name}">${team.name}</option>`
+                    ).join('');
+                }
+            });
+        }
+
+        async function addNews() {
+            const title = document.getElementById('newsTitle').value.trim();
+            if (!title) {
+                alert('Please enter a title!');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('news').insert({
+                title,
+                category: document.getElementById('newsCategory').value,
+                excerpt: document.getElementById('newsExcerpt').value,
+                icon: document.getElementById('newsIcon').value,
+                date: document.getElementById('newsDate').value
+            });
+
+            if (error) {
+                alert('Error adding news: ' + error.message);
+                return;
+            }
+
+            document.getElementById('newsSuccess').innerHTML = 
+                '<div class="success-message">✅ Article published successfully!</div>';
+            setTimeout(() => document.getElementById('newsSuccess').innerHTML = '', 3000);
+
+            document.getElementById('newsTitle').value = '';
+            document.getElementById('newsExcerpt').value = '';
+            document.getElementById('newsIcon').value = '📰';
+            document.getElementById('newsDate').value = 'Today';
+            
+            renderNews();
+        }
+
+        async function renderNews() {
+            const { data: news } = await supabaseClient.from('news').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('newsList');
+            
+            if (!news || news.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📰</div><p>No articles yet.</p></div>';
+                return;
+            }
+
+            container.innerHTML = news.map(article => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <h3>${article.icon} ${article.title}</h3>
+                        <p>${article.category} • ${article.date}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn-danger" onclick="deleteNews(${article.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteNews(id) {
+            if (confirm('Delete this article?')) {
+                await supabaseClient.from('news').delete().eq('id', id);
+                renderNews();
+            }
+        }
+
+        async function addFixture() {
+            const date = document.getElementById('fixtureDate').value.trim();
+            const time = document.getElementById('fixtureTime').value.trim();
+            
+            if (!date || !time) {
+                alert('Please enter date and time!');
+                return;
+            }
+
+            const homeScore = document.getElementById('fixtureHomeScore').value;
+            const awayScore = document.getElementById('fixtureAwayScore').value;
+
+            const { error } = await supabaseClient.from('fixtures').insert({
+                date,
+                time,
+                home_team: document.getElementById('fixtureHomeTeam').value,
+                away_team: document.getElementById('fixtureAwayTeam').value,
+                status: document.getElementById('fixtureStatus').value,
+                status_text: document.getElementById('fixtureStatusText').value || 'Upcoming',
+                home_score: homeScore ? parseInt(homeScore) : null,
+                away_score: awayScore ? parseInt(awayScore) : null
+            });
+
+            if (error) {
+                alert('Error adding fixture: ' + error.message);
+                return;
+            }
+
+            document.getElementById('fixtureSuccess').innerHTML = 
+                '<div class="success-message">✅ Fixture added successfully!</div>';
+            setTimeout(() => document.getElementById('fixtureSuccess').innerHTML = '', 3000);
+
+            document.getElementById('fixtureDate').value = '';
+            document.getElementById('fixtureTime').value = '';
+            document.getElementById('fixtureHomeScore').value = '';
+            document.getElementById('fixtureAwayScore').value = '';
+            document.getElementById('fixtureStatusText').value = '';
+            
+            renderFixtures();
+        }
+
+        async function renderFixtures() {
+            const { data: fixtures } = await supabaseClient.from('fixtures').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('fixturesList');
+            
+            if (!fixtures || fixtures.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No fixtures scheduled.</p></div>';
+                return;
+            }
+
+            container.innerHTML = fixtures.map(fixture => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <h3>${fixture.home_team} vs ${fixture.away_team}</h3>
+                        <p>${fixture.date} • ${fixture.time} • ${fixture.status}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn-danger" onclick="deleteFixture(${fixture.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteFixture(id) {
+            if (confirm('Delete this fixture?')) {
+                await supabaseClient.from('fixtures').delete().eq('id', id);
+                renderFixtures();
+            }
+        }
+
+        async function addResult() {
+            const date = document.getElementById('resultDate').value.trim();
+            const time = document.getElementById('resultTime').value.trim();
+            const homeScore = parseInt(document.getElementById('resultHomeScore').value);
+            const awayScore = parseInt(document.getElementById('resultAwayScore').value);
+            
+            if (!date || !time || isNaN(homeScore) || isNaN(awayScore)) {
+                alert('Please fill in all fields!');
+                return;
+            }
+
+            const homeTeam = document.getElementById('resultHomeTeam').value;
+            const awayTeam = document.getElementById('resultAwayTeam').value;
+
+            const { error } = await supabaseClient.from('results').insert({
+                date,
+                time,
+                home_team: homeTeam,
+                away_team: awayTeam,
+                home_score: homeScore,
+                away_score: awayScore
+            });
+
+            if (error) {
+                alert('Error adding result: ' + error.message);
+                return;
+            }
+
+            await updateLeagueTable(homeTeam, awayTeam, homeScore, awayScore);
+
+            document.getElementById('resultSuccess').innerHTML = 
+                '<div class="success-message">✅ Result added and table updated!</div>';
+            setTimeout(() => document.getElementById('resultSuccess').innerHTML = '', 3000);
+
+            document.getElementById('resultDate').value = '';
+            document.getElementById('resultTime').value = '';
+            document.getElementById('resultHomeScore').value = '';
+            document.getElementById('resultAwayScore').value = '';
+            
+            renderResults();
+            renderTable();
+        }
+
+        async function renderResults() {
+            const { data: results } = await supabaseClient.from('results').select('*').order('created_at', { ascending: false });
+            const container = document.getElementById('resultsList');
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><p>No results yet.</p></div>';
+                return;
+            }
+
+            container.innerHTML = results.map(result => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <h3>${result.home_team} ${result.home_score} - ${result.away_score} ${result.away_team}</h3>
+                        <p>${result.date} • ${result.time}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn-danger" onclick="deleteResult(${result.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteResult(id) {
+            if (confirm('Delete this result?')) {
+                await supabaseClient.from('results').delete().eq('id', id);
+                renderResults();
+            }
+        }
+
+        async function updateLeagueTable(homeTeam, awayTeam, homeScore, awayScore) {
+            const { data: teams } = await supabaseClient.from('teams').select('*');
+            const home = teams.find(t => t.name === homeTeam);
+            const away = teams.find(t => t.name === awayTeam);
+
+            if (!home || !away) return;
+
+            home.played++;
+            away.played++;
+            home.gf += homeScore;
+            home.ga += awayScore;
+            away.gf += awayScore;
+            away.ga += homeScore;
+
+            let homeForm = Array.isArray(home.form) ? home.form : [];
+            let awayForm = Array.isArray(away.form) ? away.form : [];
+
+            if (homeScore > awayScore) {
+                home.won++;
+                away.lost++;
+                homeForm.push('W');
+                awayForm.push('L');
+            } else if (awayScore > homeScore) {
+                away.won++;
+                home.lost++;
+                awayForm.push('W');
+                homeForm.push('L');
+            } else {
+                home.drawn++;
+                away.drawn++;
+                homeForm.push('D');
+                awayForm.push('D');
+            }
+
+            home.form = homeForm.slice(-5);
+            away.form = awayForm.slice(-5);
+
+            await supabaseClient.from('teams').update(home).eq('id', home.id);
+            await supabaseClient.from('teams').update(away).eq('id', away.id);
+        }
+
+        async function addPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('Please enter a player name!');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('players').insert({
+                name,
+                team: document.getElementById('playerTeam').value,
+                goals: parseInt(document.getElementById('playerGoals').value) || 0,
+                assists: parseInt(document.getElementById('playerAssists').value) || 0,
+                saves: parseInt(document.getElementById('playerSaves').value) || 0
+            });
+
+            if (error) {
+                alert('Error adding player: ' + error.message);
+                return;
+            }
+
+            document.getElementById('playerSuccess').innerHTML = 
+                '<div class="success-message">✅ Player added successfully!</div>';
+            setTimeout(() => document.getElementById('playerSuccess').innerHTML = '', 3000);
+
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerGoals').value = '0';
+            document.getElementById('playerAssists').value = '0';
+            document.getElementById('playerSaves').value = '0';
+            
+            renderPlayers();
+        }
+
+        async function renderPlayers() {
+            const { data: players } = await supabaseClient.from('players').select('*');
+            const tbody = document.getElementById('playersTableBody');
+            const emptyState = document.getElementById('playersEmptyState');
+            const table = document.getElementById('playersTable');
+            
+            if (!players || players.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'table';
+            emptyState.style.display = 'none';
+            tbody.innerHTML = players.map(player => `
+                <tr>
+                    <td><strong>${player.name}</strong></td>
+                    <td>${player.team}</td>
+                    <td>${player.goals}</td>
+                    <td>${player.assists}</td>
+                    <td>${player.saves}</td>
+                    <td>
+                        <button class="btn-danger" onclick="deletePlayer(${player.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deletePlayer(id) {
+            if (confirm('Delete this player?')) {
+                await supabaseClient.from('players').delete().eq('id', id);
+                renderPlayers();
+            }
+        }
+
+        async function renderTable() {
+            const { data: teams } = await supabaseClient.from('teams').select('*');
+            const sorted = teams.map(team => {
+                const gd = team.gf - team.ga;
+                const points = (team.won * 3) + team.drawn;
+                return { ...team, gd, points };
+            }).sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                if (b.gd !== a.gd) return b.gd - a.gd;
+                return b.gf - a.gf;
+            });
+
+            document.getElementById('tableBody').innerHTML = sorted.map((team, index) => `
+                <tr>
+                    <td><strong>${index + 1}</strong></td>
+                    <td><strong>${team.name}</strong></td>
+                    <td>${team.played}</td>
+                    <td>${team.won}</td>
+                    <td>${team.drawn}</td>
+                    <td>${team.lost}</td>
+                    <td>${team.gf}</td>
+                    <td>${team.ga}</td>
+                    <td>${team.gd >= 0 ? '+' : ''}${team.gd}</td>
+                    <td><strong>${team.points}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        async function resetTable() {
+            if (confirm('⚠️ This will reset ALL team statistics to 0. Are you sure?')) {
+                const { data: teams } = await supabaseClient.from('teams').select('*');
+                
+                for (const team of teams) {
+                    await supabaseClient.from('teams').update({
+                        played: 0,
+                        won: 0,
+                        drawn: 0,
+                        lost: 0,
+                        gf: 0,
+                        ga: 0,
+                        form: []
+                    }).eq('id', team.id);
+                }
+                
+                renderTable();
+                alert('✅ League table reset successfully!');
+            }
+        }
+
+        async function init() {
+            await populateTeamSelects();
+            await Promise.all([
+                renderNews(),
+                renderFixtures(),
+                renderResults(),
+                renderPlayers(),
+                renderTable()
+            ]);
+        }
+
+        if (localStorage.getItem(AUTH_KEY) === 'true') {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminDashboard').classList.add('active');
+            init();
+        }
+    </script>
+</body>
+</html>
